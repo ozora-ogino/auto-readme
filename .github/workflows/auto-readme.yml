@@ -1,20 +1,23 @@
 # README Updater Action
 #
 # This GitHub Action automatically updates the README.md file based on changes in Pull Requests.
-# It uses OpenAI's GPT-4 to generate concise and informative updates.
+# It uses OpenAI's language models to generate concise and informative updates.
 #
 # Usage Instructions:
 # 1. Copy this entire file to .github/workflows/update-readme.yml in your repository.
-# 2. Set up the required secrets in your repository:
+# 2. Create a .github/README_TEMPLATE.md file in your repository with your desired README structure.
+# 3. Set up the required secrets and variables in your repository:
 #    - Go to your repository's Settings > Secrets and variables > Actions
 #    - Add a new repository secret named OPENAI_API_KEY with your OpenAI API key
 #    - Add a new repository secret named GH_TOKEN with a GitHub Personal Access Token
 #      (The token should have 'repo' scope for private repositories, or 'public_repo' for public repositories)
-# 3. Configure your repository settings:
+#    - Add a new repository variable named OPENAI_MODEL with the full version of the desired OpenAI model 
+#      (e.g., "gpt-3.5-turbo-0613" or "gpt-4-0613"). For the latest version, use "gpt-3.5-turbo" or "gpt-4".
+# 4. Configure your repository settings:
 #    - Go to your repository's Settings > Actions > General
 #    - Under "Workflow permissions", select "Read and write permissions"
 #    - Check "Allow GitHub Actions to create and approve pull requests"
-# 4. Optionally, customize the on: section below to control when this action runs
+# 5. Optionally, customize the on: section below to control when this action runs
 #
 # Note: This action uses a custom GH_TOKEN for authentication instead of the default GITHUB_TOKEN.
 #       Make sure to set up the GH_TOKEN secret as described above.
@@ -56,6 +59,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
       run: |
         import os
         import sys
@@ -63,45 +67,87 @@ jobs:
         from openai import OpenAI
         import logging
 
+        # Set up logging
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
         def get_pr_diff(repo_name, pr_number):
+            """
+            Fetch the diff of a specific pull request.
+            """
             g = Github(os.environ['GH_TOKEN'])
             repo = g.get_repo(repo_name)
             pr = repo.get_pull(pr_number)
             return pr.get_files()
 
-        def generate_readme(diff_content):
+        def read_template(template_path='.github/README_TEMPLATE.md'):
+            """
+            Read the README template from the specified file.
+            """
+            try:
+                with open(template_path, 'r') as f:
+                    return f.read()
+            except IOError as e:
+                logging.error(f"Error reading README template: {e}")
+                return None
+
+        def read_current_readme(readme_path='README.md'):
+            """
+            Read the current README content.
+            """
+            try:
+                with open(readme_path, 'r') as f:
+                    return f.read()
+            except IOError as e:
+                logging.error(f"Error reading current README: {e}")
+                return None
+
+        def generate_readme(diff_content, template_content, current_readme):
+            """
+            Generate new README content using the specified OpenAI model.
+            """
             client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+            model = os.environ.get('OPENAI_MODEL', 'gpt-3.5-turbo-0613')  # Default to a specific version if not specified
+            logging.info(f"Using OpenAI model: {model}")
             response = client.chat.completions.create(
-                model="gpt-4",
+                model=model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that generates concise and informative README content based on code changes."},
-                    {"role": "user", "content": f"Based on the following diff, please update the README content. Focus on key changes, new features, and any breaking changes:\n\n{diff_content}"}
+                    {"role": "system", "content": "You are a helpful assistant that generates concise and informative README content based on code changes, a given template, and the current README."},
+                    {"role": "user", "content": f"Here is the README template:\n\n{template_content}\n\nHere is the current README content:\n\n{current_readme}\n\nBased on the following diff, please update the README content. Focus on key changes, new features, and any breaking changes. Use the provided template structure and incorporate relevant information from the current README:\n\n{diff_content}"}
                 ]
             )
             return response.choices[0].message.content
 
         def update_readme(new_content, readme_path='README.md'):
+            """
+            Update the README file with new content.
+            """
             try:
-                with open(readme_path, 'r') as f:
-                    old_content = f.read()
-                updated_content = f"{old_content}\n\n## Latest Updates\n\n{new_content}"
                 with open(readme_path, 'w') as f:
-                    f.write(updated_content)
+                    f.write(new_content)
                 logging.info(f"README updated successfully at {readme_path}")
             except IOError as e:
                 logging.error(f"Error updating README: {e}")
                 raise
 
         def main():
+            """
+            Main function to orchestrate the README update process.
+            """
             repo_name = os.environ['GITHUB_REPOSITORY']
             pr_number = int(os.environ['PR_NUMBER'])
             
             try:
+                template_content = read_template()
+                if template_content is None:
+                    raise ValueError("Failed to read README template")
+                
+                current_readme = read_current_readme()
+                if current_readme is None:
+                    raise ValueError("Failed to read current README")
+                
                 files = get_pr_diff(repo_name, pr_number)
                 diff_content = "\n".join([f"File: {file.filename}\nChanges:\n{file.patch}\n" for file in files])
-                new_readme_content = generate_readme(diff_content)
+                new_readme_content = generate_readme(diff_content, template_content, current_readme)
                 update_readme(new_readme_content)
             except Exception as e:
                 logging.error(f"Failed to update README: {e}")
@@ -131,13 +177,14 @@ jobs:
 # 2. Verify that the GH_TOKEN has the necessary permissions (repo scope for private repos, public_repo for public repos)
 # 3. Verify that the repository settings for Actions are correctly configured as mentioned in the setup instructions
 # 4. Check the Action logs for any error messages or unexpected behavior
+# 5. Make sure the OPENAI_MODEL variable is set to a valid, full version of an OpenAI model
 #
 # For more detailed information or to report issues, please visit:
 # https://github.com/yourusername/your-repo-name/issues
 
 # Customization:
 # You can customize this action by modifying the Python script in the "Update README" step.
-# For example, you can change the OpenAI model, adjust the prompt, or modify how the README is updated.
+# For example, you can adjust the prompt, modify how the README is updated, or change the default model version.
 
 # Contributions:
 # Contributions to improve this action are welcome! Please submit a pull request or open an issue on the repository.

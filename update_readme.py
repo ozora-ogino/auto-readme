@@ -11,6 +11,14 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+def get_repo_tree(repo_name):
+    """
+    Fetch the full tree of the repository recursively.
+    """
+    g = Github(os.environ["GH_TOKEN"])
+    repo = g.get_repo(repo_name)
+    tree = repo.get_git_tree("main", recursive=True)
+    return [element.path for element in tree.tree]
 
 def get_pr_diff(repo_name, pr_number):
     """
@@ -20,7 +28,6 @@ def get_pr_diff(repo_name, pr_number):
     repo = g.get_repo(repo_name)
     pr = repo.get_pull(pr_number)
     return pr.get_files()
-
 
 def read_template(template_path=".github/README_TEMPLATE.md"):
     """
@@ -33,7 +40,6 @@ def read_template(template_path=".github/README_TEMPLATE.md"):
         logging.error(f"Error reading README template: {e}")
         return None
 
-
 def read_current_readme(readme_path="README.md"):
     """
     Read the current README content.
@@ -45,7 +51,6 @@ def read_current_readme(readme_path="README.md"):
         logging.error(f"Error reading current README: {e}")
         return None
 
-
 def is_critical_change(file_name, file_patch):
     """
     Determine if a change is critical based on the file name and patch.
@@ -53,7 +58,7 @@ def is_critical_change(file_name, file_patch):
     critical_patterns = [
         r"\.github/workflows/.*\.ya?ml",  # Workflow files
         r"package\.json",  # package.json
-        r".*\.(js|ts|py)$",  # Potential endpoint files
+        r".*\.(js|ts|py|rb|php|java|cs|go|rs|scala|kt|swift)$",  # Potential endpoint files
     ]
 
     if any(re.match(pattern, file_name) for pattern in critical_patterns):
@@ -61,18 +66,97 @@ def is_critical_change(file_name, file_patch):
 
     # Check for endpoint changes in code files
     endpoint_patterns = [
+        # Python
         r"@app\.route\(",  # Flask
-        r"app\.get\(",  # Express
         r"@api_view\(",  # Django REST framework
-        r'path\([\'"]/',  # React Router
+        r"app\.add_url_rule\(",  # Flask
+        r"path\(['\"]",  # Django
+
+        # JavaScript/TypeScript
+        r"app\.(get|post|put|delete|patch)\(",  # Express.js
+        r"router\.(get|post|put|delete|patch)\(",  # Express.js with Router
+        r"app\.use\(['\"]",  # Express.js middleware
+        r"new Route\(",  # Angular
+        r"@(Get|Post|Put|Delete|Patch)\(",  # NestJS
+        r"path: ['\"]",  # Angular routing
+
+        # Ruby
+        r"get ['\"]",  # Ruby on Rails
+        r"post ['\"]",  # Ruby on Rails
+        r"put ['\"]",  # Ruby on Rails
+        r"delete ['\"]",  # Ruby on Rails
+        r"resources? :",  # Ruby on Rails resources
+
+        # PHP
+        r"Route::(get|post|put|delete|patch)\(",  # Laravel
+        r"\$router->(get|post|put|delete|patch)\(",  # Slim Framework
+
+        # Java
+        r"@(Get|Post|Put|Delete|Patch)Mapping",  # Spring Boot
+        r"@Path\(['\"]",  # JAX-RS
+
+        # C#
+        r"\[Http(Get|Post|Put|Delete|Patch)\]",  # ASP.NET Core
+        r"app\.Map",  # ASP.NET Core Minimal API
+
+        # Go
+        r"(r|http)\.(Handle|HandleFunc)\(",  # Go standard library
+        r"(r|e)\.(GET|POST|PUT|DELETE|PATCH)\(",  # Echo and Gin frameworks
+
+        # Rust
+        r"#\[get\(",  # Rocket framework
+        r"#\[post\(",  # Rocket framework
+        r"#\[put\(",  # Rocket framework
+        r"#\[delete\(",  # Rocket framework
+        r"#\[patch\(",  # Rocket framework
+
+        # Scala
+        r"path\(['\"]",  # Play framework
+        r"(get|post|put|delete|patch)\(['\"]",  # Play framework
+
+        # Kotlin
+        r"@(Get|Post|Put|Delete|Patch)Mapping",  # Spring Boot with Kotlin
+
+        # Swift
+        r"router\.(get|post|put|delete|patch)\(",  # Vapor framework
+        r"app\.get\(",  # Vapor framework
+        r"app\.post\(",  # Vapor framework
+        r"app\.put\(",  # Vapor framework
+        r"app\.delete\(",  # Vapor framework
+        r"app\.patch\(",  # Vapor framework
     ]
 
-    return any(re.search(pattern, file_patch) for pattern in endpoint_patterns)
+    return any(re.search(pattern, file_patch, re.IGNORECASE) for pattern in endpoint_patterns)
 
 
-def generate_readme(
-    diff_content, template_content, current_readme, repo_name, max_tokens=4000
-):
+def extract_important_files(tree_content):
+    """
+    Use LLM to extract important files from the repository tree.
+    """
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
+
+    messages = [
+        {
+            "role": "system",
+            "content": "You are an AI assistant that helps identify important files in a repository structure. Focus on files that are crucial for understanding the project structure, main functionalities, and configuration."
+        },
+        {
+            "role": "user",
+            "content": f"Given the following repository structure, list the top 10 most important files that should be considered when updating the README. Only provide the file paths, one per line, without any additional text or explanations:\n\n{tree_content}"
+        }
+    ]
+
+    try:
+        response = client.chat.completions.create(
+            model=model, messages=messages, max_tokens=500
+        )
+        return response.choices[0].message.content.strip().split('\n')
+    except Exception as e:
+        logging.error(f"Error in extracting important files: {e}")
+        return []
+
+def generate_readme(diff_content, template_content, current_readme, repo_name, important_files, max_tokens=4000):
     """
     Generate new README content using the specified OpenAI model.
     """
@@ -83,7 +167,7 @@ def generate_readme(
     messages = [
         {
             "role": "system",
-            "content": "You are a helpful assistant that generates README content in Markdown format based on code changes, a given template, and the current README. Focus on critical changes such as updates to workflows, package.json, and application endpoints. If no significant changes are necessary, respond with 'NO_CHANGES_NEEDED'.",
+            "content": "You are a helpful assistant that generates README content in Markdown format based on code changes, a given template, the current README, and a list of important files. Focus on critical changes such as updates to workflows, package.json, and application endpoints. If no significant changes are necessary, respond with 'NO_CHANGES_NEEDED'.",
         },
         {
             "role": "user",
@@ -100,15 +184,20 @@ Repository Name: {repo_name}
 Code Changes:
 {diff_content}
 
+Important Files:
+{', '.join(important_files)}
+
 Instructions:
 1. Use the provided template structure.
-2. Incorporate relevant information from the current README and the code changes.
+2. Incorporate relevant information from the current README, code changes, and important files.
 3. Use table, toggle, code block or etc for readability
 4. Focus on key changes, especially those related to workflows, package.json, and application endpoints.
 5. Consider any new features or breaking changes.
 6. Replace {{placeholder}} with actual content.
 7. Provide the complete README in Markdown format without any additional text or explanations. And don't start from code block.
 8. If no significant changes are needed, respond only with 'NO_CHANGES_NEEDED'.
+9. Don't use something like "refer to the installation guide found in the installation.md file."
+10. Create inclusive README as you can make.
 
 Generate the updated README content:""",
         },
@@ -128,7 +217,6 @@ Generate the updated README content:""",
         else:
             raise
 
-
 def update_readme(new_content, readme_path="README.md"):
     """
     Update the README file with new content.
@@ -141,7 +229,6 @@ def update_readme(new_content, readme_path="README.md"):
         logging.error(f"Error updating README: {e}")
         raise
 
-
 def main():
     """
     Main function to orchestrate the README update process.
@@ -150,6 +237,12 @@ def main():
     pr_number = int(os.environ["PR_NUMBER"])
 
     try:
+        # Get repository tree
+        tree_content = get_repo_tree(repo_name)
+        
+        # Extract important files
+        important_files = extract_important_files('\n'.join(tree_content))
+        
         template_content = read_template()
         if template_content is None:
             raise ValueError("Failed to read README template")
@@ -182,7 +275,7 @@ def main():
         for i, diff_chunk in enumerate(diff_chunks):
             logging.info(f"Processing chunk {i+1} of {len(diff_chunks)}")
             new_readme_content = generate_readme(
-                diff_chunk, template_content, current_readme, repo_name
+                diff_chunk, template_content, current_readme, repo_name, important_files
             )
 
             if new_readme_content is None:
@@ -198,9 +291,7 @@ def main():
                 continue
 
             update_readme(new_readme_content)
-            current_readme = (
-                new_readme_content  # Update current README for next iteration
-            )
+            current_readme = new_readme_content  # Update current README for next iteration
             readme_updated = True
 
             if i < len(diff_chunks) - 1:
@@ -212,7 +303,6 @@ def main():
     except Exception as e:
         logging.error(f"Failed to update README: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

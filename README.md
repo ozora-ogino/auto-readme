@@ -235,3 +235,46 @@ Please ensure that the above steps are followed correctly in the described seque
 This GitHub action is customizable - you are free to alter the Python script in the "Update README" step to meet your specific needs. We invite contributions for improvements to this action. Please report issues or submit pull requests to the repository.
 
 Please note that this is a new feature addition and it will not affect existing functionality. No breaking changes have been introduced.
+
+## Latest Updates
+
+# auto-readme
+
+## Latest Updates
+
+### New Feature: README Auto-Updater Action
+
+We have added a new feature, the 'README Updater Action'. This GitHub Action automatically updates the README.md file to include changes proposed in Pull Requests.
+
+#### Key Features
+
+- Leveraging OpenAI's GPT-4 to generate concise and informative updates.
+- Activation on every Pull Request excluding the ones only making changes to the README.md file.
+- Automatic committing and pushing of updates to README.md file.
+- Allows user customization as per requirements.
+
+#### Usage 
+
+To use this feature:
+
+1. Copy 'auto-readme.yml' to '.github/workflows/update-readme.yml' in your repository.
+2. Set up the following secrets in your repository's Settings > Secrets > Actions:
+   - OPENAI_API_KEY with your OpenAPI key.
+   - GH_TOKEN with your GitHub Personal Access Token, 'repo' scope for private repositories, and 'public_repo' scope for public ones.
+3. Configure your repository settings:
+   - Enable "Read and write permissions" under "Workflow permissions" in your repository's Settings > Actions > General.
+   - Check "Allow GitHub Actions to create and approve pull requests".
+
+**Note:** This action uses a custom 'GH_TOKEN' for authentication instead of the default 'GITHUB_TOKEN'.
+
+#### Troubleshooting 
+
+To troubleshoot issues, ensure that 'OPENAI_API_KEY' and 'GH_TOKEN' secrets are correctly configured, 'GH_TOKEN' has the proper permissions, and the configurations for Actions are correctly set in your repository settings.
+
+#### Customization and Contributions 
+
+You can customize this action as required by altering the Python script in the "Update README" step. Contributions for improving the action are welcome. Feel free to submit a pull request or open an issue on the repository.
+
+#### Breaking Changes 
+
+No breaking changes were introduced. This new feature is an addition and does not alter existing functionalities.

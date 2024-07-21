@@ -122,3 +122,42 @@ The action offers customization. You can modify the Python script in the "Update
 **Breaking Changes**
 
 No breaking changes. This is a new feature addition not impacting existing functionality.
+
+## Latest Updates
+
+# auto-readme
+
+## Latest Updates
+
+## New Feature: README Auto-updater Action
+
+We have introduced a new GitHub Action named 'README Updater Action'. This action automatically updates the README.md file to reflect changes proposed in Pull Requests.
+
+**Key Features**
+- Leverages OpenAI's GPT-4 to generate concise and informative updates.
+- Automatically activates on every Pull Request that changes files, excluding the README.md itself.
+- Directly commits and pushes any updates made to README.md.
+- Enables users to customize according to their requirements.
+
+**Usage Instructions**
+1. Copy 'auto-readme.yml' file to '.github/workflows/update-readme.yml' in your repository.
+2. Set up the following secrets in your repository:
+   - OPENAI_API_KEY with your OpenAI API key.
+   - GH_TOKEN with a GitHub Personal Access Token ('repo' scope for private repositories, 'public_repo' for public ones).
+3. Configure your repository settings:
+   - In Settings > Actions > General, under "Workflow permissions", select "Read and write permissions".
+   - Check the box for "Allow GitHub Actions to create and approve pull requests".
+
+**Note:** This action uses a custom 'GH_TOKEN' for authentication instead of the default 'GITHUB_TOKEN'.
+
+**Troubleshooting**
+
+If you face any issues, ensure that the 'OPENAI_API_KEY' and 'GH_TOKEN' secrets are correctly configured and that they have the necessary permissions. Also, verify your repository settings for Actions are properly set.
+
+**Customizations and Contributions**
+
+You have the ability to customize this action by altering the Python script under the "Update README" step. Contributions to improve this action are always welcome!
+
+**Breaking Changes**
+
+There are no breaking changes. This is a new feature addition, and it will not affect the existing functionality.

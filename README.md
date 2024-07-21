@@ -81,3 +81,44 @@ Refer to the auto-readme.yml file for more details.
 ### Breaking Changes 
 
 There are no breaking changes. This action was a new feature addition and does not affect existing functionality.
+
+
+## Latest Updates
+
+# auto-readme
+
+**Latest Updates**
+
+## New Feature: README Auto-updater Action
+
+We have introduced a new GitHub Action named 'README Updater Action'. This action automatically updates the README.md file to reflect changes proposed in Pull Requests.
+
+**Key Features**
+- The action uses OpenAI's GPT-4 to generate concise and informative updates.
+- It triggers on opening or synchronizing every Pull Request, excluding the ones with changes only to the README.md.
+- Automatically commits and pushes the changes it makes to README.md.
+- This action allows customization according to user's needs.
+
+**Usage**
+
+1. Copy the 'auto-readme.yml' file to '.github/workflows/update-readme.yml' in your repository.
+2. Set up the required secrets in your repository's Settings > Secrets > Actions:
+   - OPENAI_API_KEY with your OpenAI API key.
+   - GH_TOKEN with your GitHub Personal Access Token. 'repo' scope for private repositories, 'public_repo' scope for public ones.
+3. Configure your repository settings:
+   - In your repository's Settings > Actions > General, under "Workflow permissions", choose "Read and write permissions".
+   - Check "Allow GitHub Actions to create and approve pull requests".
+
+Important: This action uses a custom 'GH_TOKEN' for authentication instead of the default 'GITHUB_TOKEN'.
+
+**Troubleshooting**
+
+If you face any issues, ensure the 'OPENAI_API_KEY' and 'GH_TOKEN' secrets are correctly set, 'GH_TOKEN' has the required permissions, and your repository settings for Actions are properly set up.
+
+**Customization and Contributions**
+
+The action offers customization. You can modify the Python script in the "Update README" step according to your needs. We welcome contributions for improving this action. Feel free to submit a pull request or open an issue on the repository.
+
+**Breaking Changes**
+
+No breaking changes. This is a new feature addition not impacting existing functionality.

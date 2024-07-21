@@ -11,8 +11,6 @@
 #    - Add a new repository secret named OPENAI_API_KEY with your OpenAI API key
 #    - Add a new repository secret named GH_TOKEN with a GitHub Personal Access Token
 #      (The token should have 'repo' scope for private repositories, or 'public_repo' for public repositories)
-#    - Add a new repository variable named OPENAI_MODEL with the full version of the desired OpenAI model 
-#      (e.g., "gpt-3.5-turbo-0613" or "gpt-4-0613"). For the latest version, use "gpt-3.5-turbo" or "gpt-4".
 # 4. Configure your repository settings:
 #    - Go to your repository's Settings > Actions > General
 #    - Under "Workflow permissions", select "Read and write permissions"
@@ -29,8 +27,10 @@ on:
     types: [opened, synchronize]
     paths-ignore:
       - 'README.md'
+
 env:
   OPENAI_MODEL: gpt-4
+
 jobs:
   update-readme:
     runs-on: ubuntu-latest
@@ -67,6 +67,7 @@ jobs:
         from github import Github
         from openai import OpenAI
         import logging
+        import time
 
         # Set up logging
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -102,21 +103,32 @@ jobs:
                 logging.error(f"Error reading current README: {e}")
                 return None
 
-        def generate_readme(diff_content, template_content, current_readme):
+        def generate_readme(diff_content, template_content, current_readme, max_tokens=4000):
             """
             Generate new README content using the specified OpenAI model.
             """
             client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
-            model = os.environ.get('OPENAI_MODEL', 'gpt-3.5-turbo-0613')  # Default to a specific version if not specified
+            model = os.environ.get('OPENAI_MODEL', 'gpt-3.5-turbo')
             logging.info(f"Using OpenAI model: {model}")
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {"role": "system", "content": "You are a helpful assistant that generates concise and informative README content based on code changes, a given template, and the current README."},
-                    {"role": "user", "content": f"Here is the README template:\n\n{template_content}\n\nHere is the current README content:\n\n{current_readme}\n\nBased on the following diff, please update the README content. Focus on key changes, new features, and any breaking changes. Use the provided template structure and incorporate relevant information from the current README:\n\n{diff_content}"}
-                ]
-            )
-            return response.choices[0].message.content
+
+            messages = [
+                {"role": "system", "content": "You are a helpful assistant that generates concise and informative README content based on code changes, a given template, and the current README."},
+                {"role": "user", "content": f"Here is the README template:\n\n{template_content}\n\nHere is the current README content:\n\n{current_readme}\n\nBased on the following diff, please update the README content. Focus on key changes, new features, and any breaking changes. Use the provided template structure and incorporate relevant information from the current README:\n\n{diff_content}"}
+            ]
+
+            try:
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    max_tokens=max_tokens
+                )
+                return response.choices[0].message.content
+            except Exception as e:
+                if "maximum context length" in str(e):
+                    logging.warning("Exceeded maximum context length. Reducing content and retrying.")
+                    return None
+                else:
+                    raise
 
         def update_readme(new_content, readme_path='README.md'):
             """
@@ -147,9 +159,25 @@ jobs:
                     raise ValueError("Failed to read current README")
                 
                 files = get_pr_diff(repo_name, pr_number)
-                diff_content = "\n".join([f"File: {file.filename}\nChanges:\n{file.patch}\n" for file in files])
-                new_readme_content = generate_readme(diff_content, template_content, current_readme)
-                update_readme(new_readme_content)
+                all_diff_content = "\n".join([f"File: {file.filename}\nChanges:\n{file.patch}\n" for file in files])
+                
+                # Split diff content into chunks if it's too large
+                diff_chunks = [all_diff_content[i:i+3000] for i in range(0, len(all_diff_content), 3000)]
+                
+                for i, diff_chunk in enumerate(diff_chunks):
+                    logging.info(f"Processing chunk {i+1} of {len(diff_chunks)}")
+                    new_readme_content = generate_readme(diff_chunk, template_content, current_readme)
+                    
+                    if new_readme_content is None:
+                        logging.warning(f"Failed to generate content for chunk {i+1}. Skipping.")
+                        continue
+                    
+                    update_readme(new_readme_content)
+                    current_readme = new_readme_content  # Update current README for next iteration
+                    
+                    if i < len(diff_chunks) - 1:
+                        time.sleep(20)  # Add delay between API calls to avoid rate limiting
+                
             except Exception as e:
                 logging.error(f"Failed to update README: {e}")
                 sys.exit(1)
@@ -178,7 +206,7 @@ jobs:
 # 2. Verify that the GH_TOKEN has the necessary permissions (repo scope for private repos, public_repo for public repos)
 # 3. Verify that the repository settings for Actions are correctly configured as mentioned in the setup instructions
 # 4. Check the Action logs for any error messages or unexpected behavior
-# 5. Make sure the OPENAI_MODEL variable is set to a valid, full version of an OpenAI model
+# 5. Make sure the OPENAI_MODEL variable is set to a valid OpenAI model
 #
 # For more detailed information or to report issues, please visit:
 # https://github.com/yourusername/your-repo-name/issues

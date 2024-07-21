@@ -241,6 +241,7 @@ Important Files and Their Contents:
 {file_content_str}
 
 Instructions:
+IMPORTANT: Please forcely add change when Template has changed.
 1. Please follow the exact same format with README Template.
 2. Incorporate relevant information from the current README, code changes, and important file contents.
 3. Use table, toggle, code block or etc for readability. 

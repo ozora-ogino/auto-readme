@@ -1,58 +1,57 @@
-```markdown
 # ozora-ogino/auto-readme
 
 ## Description
-This project uses an OpenAI-powered tool to automatically generate and update README files based on changes in pull requests. The tool focuses on analyzing critical changes such as workflows, package.json, and application endpoints. The tool now has an enhanced mechanism for dealing with large diffs, breaking them into manageable chunks and processing each separately to efficiently generate the updated README content.
+This project utilizes an OpenAI-powered tool designed to automatically generate and update README files based on the changes detected in pull requests. It has an optimized mechanism for managing large diffs by breaking them down into manageable chunks and processing them individually.
 
 ## Dependencies
 - Python packages: PyGithub, openai
 
 ## Features
 - Automatic README generation and updates based on incoming pull requests.
-- Identify changes focusing primarily on workflows, package.json, application endpoints, and other critical code alterations.
-- The new update exposes several functions for getting the PR diff, reading the current and template README, as well as determining critical changes based on file name and patches.
-- Time delay feature for API calls to avoid rate limiting.
-- Includes logging system to report issues during content generation.
-- Flexible and customizable based on user requirements.
-- The latest updates define better management for larger diffs by breaking them into manageable chunks, thus improving the performance of content generation.
-- The tool prevents unnecessary updates when no critical changes are detected or if the generated content for a chunk doesn't trigger significant changes.
-- Ability to change the OpenAI model version.
+- Critical changes identification on workflows, package.json, application endpoints, and other significant code modifications.
+- Exposed functions for obtaining the PR diff, reading the current and template README, and detecting critical changes based on file name and patches.
+- Improved handling for large diffs; the changes are now divided into 3000-character chunks for better readability and processing.
+- Time delay feature inserted between API calls to avoid rate limiting.
+- Logging system for reporting issues during content generation.
+- Validation checks have been introduced during README generation to handle 'NO_CHANGES_NEEDED' scenarios and skip unnecessary updates.
+- Unnecessary updates prevention when no critical changes are detected or if the generated content does not trigger notable modifications.
+- Ability to change the OpenAI model version for further customization.
 
 ## Installation
-Initially, copy the entire `.github/workflows/auto-readme.yml` file to `.github/workflows/` directory in your repository. Then, establish a `.github/README_TEMPLATE.md` file in the same repository using the provided structured template. Setup the required secrets and variables in your repository by visiting `Settings > Secrets` in your directory and add a new repository secret named `OPENAI_API_KEY` with your OpenAI API key and `GH_TOKEN` with your GitHub Personal Access Token.
+To utilize the README Updater Action, follow the steps below:
+1. Copy .github/workflows/auto-readme.yml file to the .github/workflows/ directory in your repository.
+2. Create a .github/README_TEMPLATE.md file with the structured template.
+3. Add the OPENAI_API_KEY with your OpenAI API key and the GH_TOKEN with your GitHub Personal Access Token in 'Settings > Secrets'.
+4. In 'Settings > Actions > General', configure the "Workflow permissions" to "Read and write permissions" and allow "GitHub Actions to create and approve pull requests".
+5. The action uses a custom GH_TOKEN for authentication by default.
+6. Customize the action's performance by adjusting the 'on:' section in the workflows file.
 
 ## Usage
-After proper setup, the tool automatically updates the README whenever a pull request is made, excluding changes directed at the README itself.
+The tool automatically updates the README whenever a pull request is made, excluding changes directed at the README itself, after you've finished setting it up.
 
 ## Recent Updates
-- The repository now includes functionality to automatically update the README file based on critical changes in pull requests. Functionality includes identifying critical file changes and generating new README content accordingly.
-- Added support for getting a PR's diff, reading the template and current README, and determining critical changes based on file name and patches to `update_readme.py`.
-- A time delay has been added between API calls in the update process to avoid hitting rate limits.
-- Additional logging has been added to assist with troubleshooting and improve clarity of the update process.
-- The latest updates have introduced a new mechanism to handle large diffs by breaking them into manageable chunks for effective processing.
-- Skips to the next chunk when content generation fails or if no significant changes are needed.
-- Updates only proceed when critical changes are detected or when generated content for a chunk entails significant changes.
-- The default OpenAI model version used has been set to "gpt-3.5-turbo".
-- README files can now be updated directly with new content generated by the application.
+- Introduced `generate_readme` and `update_readme` functions for automated generation and updating of README files based on OpenAI’s model.
+- Enhanced the `main` function to orchestrate the README update process seamlessly. A mechanism to handle large diffs was added, where large diffs are divided into 3000-character chunks.
+- Included a time delay between API calls to avoid rate limiting.
+- Validation checks were added during the README generation process, where if 'NO_CHANGES_NEEDED' is returned, the update is skipped.
+- Existing features and workflows remain unaffected.
 
 ## Contributing
-Community contributions to improve this action are always welcome! Please submit a pull request or open an issue on the repository.
+We invite the community to contribute and help us improve this action! Please submit a pull request or open an issue on the repository.
 
 ## License
 This project is licensed under the terms of the MIT license.
 
 ## Contact
-For detailed information or to report issues, please visit: https://github.com/ozora-ogino/auto-readme/issues
+For more information or to report issues, please visit: https://github.com/ozora-ogino/auto-readme/issues
 
 ## Troubleshooting
-If you encounter any issues, please ensure:
-
-1. The `OPENAI_API_KEY` and `GH_TOKEN` secrets are correctly set in your repository.
-2. The `GH_TOKEN` has the necessary permissions - `repo` scope for private repositories, `public_repo` for public repositories.
-3. The repository settings for Actions are correctly configured as mentioned in the setup instructions.
-4. Check the Action logs for any error messages or unexpected behavior. 
-5. `OPENAI_MODEL` variable is set to a valid OpenAI model (gpt-4).
+If you encounter any issues, please perform the following checks:
+1. Ensure the `OPENAI_API_KEY` and `GH_TOKEN` secrets are correctly set in your repository.
+2. The `GH_TOKEN` should possess the necessary permissions - `repo` scope for private repositories, `public_repo` for public repositories.
+3. Verify the repository settings for Actions, as mentioned in the setup instructions.
+4. Review the Action logs for any error messages or unexpected behavior. 
+5. Make sure the `OPENAI_MODEL` variable is set to a valid OpenAI model - "gpt-4" by default.
 
 ## Customization
-You can adjust this action by altering the Python script in the "Update README" step. For example, adjusting the prompt, modifying how critical changes are detected, or changing the OpenAI model version is completely manageable.
-```
+You have the opportunity to customize this action by adjusting the Python script in the "Update README" step, allowing you to adjust the prompt, determine how critical changes are detected, or change the OpenAI model version. You can also modify the 'on:' section in the workflows file to control when this action runs based on your necessities.

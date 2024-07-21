@@ -1,10 +1,11 @@
-# Project Name
+# [Repository Name]
 
 ## Description
 [A brief description of your project]
 
 ## Dependencies
-[dependency of system, library and version]
+- [Dependency 1]
+- [Dependency 2]
 
 ## Features
 - [Feature 1]

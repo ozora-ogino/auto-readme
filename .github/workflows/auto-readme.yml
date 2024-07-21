@@ -1,0 +1,93 @@
+name: Update README
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - 'README.md'
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyGithub openai
+
+    - name: Update README
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      run: |
+        import os
+        import sys
+        from github import Github
+        from openai import OpenAI
+        import logging
+
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+        def get_pr_diff(repo_name, pr_number):
+            github_token = os.environ['GITHUB_TOKEN']
+            g = Github(github_token)
+            repo = g.get_repo(repo_name)
+            pr = repo.get_pull(pr_number)
+            return pr.get_files()
+
+        def generate_readme(diff_content):
+            client = OpenAI(api_key=os.environ['OPENAI_API_KEY'])
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant that generates concise and informative README content based on code changes."},
+                    {"role": "user", "content": f"Based on the following diff, please update the README content. Focus on key changes, new features, and any breaking changes:\n\n{diff_content}"}
+                ]
+            )
+            return response.choices[0].message.content
+
+        def update_readme(new_content, readme_path='README.md'):
+            with open(readme_path, 'r') as f:
+                old_content = f.read()
+            updated_content = f"{old_content}\n\n## Latest Updates\n\n{new_content}"
+            with open(readme_path, 'w') as f:
+                f.write(updated_content)
+            logging.info(f"README updated successfully at {readme_path}")
+
+        def main():
+            repo_name = os.environ['GITHUB_REPOSITORY']
+            pr_number = int(os.environ['GITHUB_EVENT_PULL_REQUEST_NUMBER'])
+            
+            try:
+                files = get_pr_diff(repo_name, pr_number)
+                diff_content = "\n".join([f"File: {file.filename}\nChanges:\n{file.patch}\n" for file in files])
+                new_readme_content = generate_readme(diff_content)
+                update_readme(new_readme_content)
+            except Exception as e:
+                logging.error(f"Failed to update README: {e}")
+                sys.exit(1)
+
+        if __name__ == "__main__":
+            main()
+      shell: python
+
+    - name: Commit and push if changed
+      run: |
+        git config --global user.name 'GitHub Action'
+        git config --global user.email 'action@github.com'
+        git add README.md
+        if git diff --staged --quiet; then
+          echo "No changes to README.md"
+        else
+          git commit -m "Update README based on PR changes"
+          git push
+        fi

@@ -48,7 +48,7 @@ jobs:
         fetch-depth: 0
         token: ${{ secrets.GH_TOKEN }}
 
-    - name: Set up Python
+    - name: Set up Python`
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
@@ -57,6 +57,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install PyGithub openai
+        git clone https://github.com/ozora-ogino/auto-readme /tmp/auto-readme
 
     - name: Update README
       env:
@@ -66,7 +67,7 @@ jobs:
         PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         OPENAI_MODEL: ${{ env.OPENAI_MODEL }}
-      run: python3 update_readme.py
+      run: python3 /tmp/auto-readme/update_readme.py
 
     - name: Commit and push if changed
       env:

@@ -228,16 +228,15 @@ Important Files and Their Contents:
 {file_content_str}
 
 Instructions:
-1. Use the provided template structure.
+1. Please follow the exact same format with README Template.
 2. Incorporate relevant information from the current README, code changes, and important file contents.
-3. Use table, toggle, code block or etc for readability
-4. Focus on key changes, especially those related to workflows, package.json, and application endpoints.
-5. Consider any new features or breaking changes.
-6. Replace {{placeholder}} with actual content.
+3. Use table, toggle, code block or etc for readability.
+4. Consider any new features or breaking changes.
+5. Replace {{placeholder}} with actual content. (If the code block, specified, please insert actual file content with omitted comments.)
 7. Provide the complete README in Markdown format without any additional text or explanations. And don't start from code block.
 8. If no significant changes are needed, respond only with 'NO_CHANGES_NEEDED'.
 9. Don't use something like "refer to the installation guide found in the installation.md file."
-10. Create inclusive README as you can make.
+10. Create inclusive BEST quality README you can make.
 
 Generate the updated README content:""",
         },

@@ -106,7 +106,7 @@ Instructions:
 3. Focus on key changes, especially those related to workflows, package.json, and application endpoints.
 4. Consider any new features or breaking changes.
 5. Replace {{placeholder}} with actual content.
-6. Provide the complete README in Markdown format without any additional text or explanations.
+6. Provide the complete README in Markdown format without any additional text or explanations. And don't start from code block.
 7. If no significant changes are needed, respond only with 'NO_CHANGES_NEEDED'.
 
 Generate the updated README content:""",

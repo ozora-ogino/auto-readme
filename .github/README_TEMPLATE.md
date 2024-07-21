@@ -7,7 +7,7 @@
 {{features}}
 
 ## Usage
-1. Copy following under `.github/workflows/auto-readme.yml` in your repo.
+1. Copy following into `.github/workflows/auto-readme.yml` in your repo.
 
 ```.github/workflows/auto-readme.yml
 {{auto-readme.yml}}

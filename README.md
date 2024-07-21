@@ -1,40 +1,40 @@
+Here is your updated README content.
+
 # Project Name
 
 ## Description
-This is a GitHub Action called 'README Updater Action' that updates the README.md file automatically to reflect changes proposed in Pull Requests. Harnessing the power of OpenAI's GPT-4 model, this tool can handle large changes and efficiently generate concise and informative updates. Notably, this action triggers on every Pull Request that modifies any file, excluding README.md itself.
+The 'README Updater Action', a GitHub Action, demonstrates another significant functionality enhancement. This new version uses OpenAI's GPT-4 model to create and update the README.md file based on changes from Pull Requests. It includes improved logging, exception handling, and the ability to manage large chunks of changes effectively.
 
 ## Dependencies
-The action depends heavily on PyGithub and OpenAI.
+The GitHub Action relies on two core dependencies - PyGithub and OpenAI.
 
 ## Features
-- **README Auto-Updater Action**: A new GitHub Action that systematically updates the README.md file based on the changes proposed in Pull Requests.
-- **Uses GPT-4 OpenAI Model**: Harnesses OpenAI's GPT-4 model to generate succinct and meaningful updates.
-- **Pull Request Active**: Works with every new Pull Request, barring those that only modify README.md.
-- **Automatic Commit & Push**: Directly commits and pushes the alterations made to the README.md file.
-- **Complete User Customizability**: The Python script in the "Update README" step can be tailored as per your requirements.
-- **Exception & Chunk Handling**: Ensures the robust handling of large changes and exception management.
-
+The feature list now includes:
+- **README Auto-Updater Action**: This new GitHub Action retrieves templates from '.github/README_TEMPLATE.md' and updates the README.md file based on Pull Requests.
+- **Uses GPT-4 OpenAI Model**: Harnesses the processing power of OpenAI's GPT-4 model to generate meaningful and succinct updates.
+- **Pull Request Active**: Works with every new Pull Request, excluding those that only modify the README.md.
+- **Automatic Commit & Push**: Automatically commits and pushes alterations to the README.md file.
+- **Complete User Customizability**: You can tailor the Python script in the "Update README" step according to your requirements.
+- **Exception & Chunk Handling**: Manages large changes and exceptions robustly.
+ 
 ## Installation
 To install and set up the project, follow these steps:
-1. Copy 'auto-readme.yml' to '.github/workflows/update-readme.yml' in your repository.
-2. Set up the following secrets in your repository's Settings > Secrets > Actions:
-   - OPENAI_API_KEY with your OpenAI API key.
-   - GH_TOKEN with your GitHub Personal Access Token ('repo' scope for private repositories, 'public_repo' for public repositories).
-3. Adjust your repository settings:
-   - In Settings > Actions > General, under "Workflow permissions", select "Read and write permissions".
-   - Enable "Allow GitHub Actions to create and approve pull requests".
-
+1. Copy the '.github/workflows/auto-readme.yml' to an identical folder in your repository.
+2. Set up the following secrets in your repository's Settings > Secrets > Actions: OPENAI_API_KEY with your OpenAI API key, and GH_TOKEN with your GitHub Personal Access Token ('repo' scope for private repositories, 'public_repo' for public repositories).
+3. Adjust your repository settings in Settings > Actions > General, under "Workflow permissions", to "Read and write permissions" and enable "Allow GitHub Actions to create and approve pull requests".
+ 
 ## Usage
-This auto-updater action triggers whenever a Pull Request gets opened or updated, excluding those specific to README.md. All alterations are automatically committed and pushed to the README.md file with the help of the GPT-4 OpenAI model.
-
+This GitHub Action triggers whenever a new Pull Request gets opened or updated, excluding those specific to README.md. All changes are committed and pushed to the README.md file automatically, with the help of the GPT-4 OpenAI model.
+ 
 ## Recent Updates
-- **New Feature: README Auto-Updater Action**: We introduce a new GitHub Action - 'README Updater Action', that uses OpenAI's GPT-4 to automatically generate and add updates to the README.md based on changes in Pull Requests.
-
+- **New Feature 'README Auto-Updater Action'**: A new GitHub Action has been introduced that uses OpenAI's GPT-4 model to automatically generate and add updates to the README.md based on changes made in Pull Requests.
+ 
 ## Contributing
-Contributions for improvements to this GitHub action are highly encouraged. You can tailor the Python script in the "Update README" step as per your requirements. Feel free to report issues or submit pull requests to the repository.
+Your contributions for improving this GitHub Action are highly welcome. You're free to adjust the Python script in the "Update README" step as per your requirements. For issues or pull request submissions, please head to the repository.
 
 ## License
-[Your project's license information]
-
+This project is licensed under the MIT License. Copyright (c) 2024 Alexander Koch.
+  
 ## Contact
-[Your contact information or how to reach out for support]
+For more detailed information or to report issues, please visit:
+https://github.com/yourusername/your-repo-name/issues.

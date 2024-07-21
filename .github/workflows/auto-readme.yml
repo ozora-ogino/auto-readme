@@ -92,8 +92,7 @@ jobs:
         destination_branch: "${{ env.TARGET_BRANCH }}"
         pr_title: "AutoReadme: Update based on PR #${{ github.event.pull_request.number }}"
         pr_body: "This pull request automatically updates the README based on changes in PR #${{ github.event.pull_request.number }}."
-        pr_label: "documentation"
-        pr_assignee: "github-actions[bot]@users.noreply.github.com"
+
 # Troubleshooting:
 # If you encounter any issues, please check the following:
 # 1. Ensure the OPENAI_API_KEY and GH_TOKEN secrets are correctly set in your repository

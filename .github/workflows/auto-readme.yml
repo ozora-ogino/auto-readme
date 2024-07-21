@@ -30,7 +30,7 @@ on:
       - 'README.md'
 
 env:
-  OPENAI_MODEL: gpt-4
+  OPENAI_MODEL: gpt-4o
   TARGET_BRANCH: main
 
 jobs:

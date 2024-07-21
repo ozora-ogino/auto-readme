@@ -278,3 +278,40 @@ You can customize this action as required by altering the Python script in the "
 #### Breaking Changes 
 
 No breaking changes were introduced. This new feature is an addition and does not alter existing functionalities.
+
+## Latest Updates
+
+## README.md Updates 
+
+We introduce a new GitHub Action - "README Updater Action". This action uses OpenAI's GPT-4 to automatically generate and add updates to the README.md based on changes in Pull Requests.
+
+### Features
+
+- Works with every new Pull Request
+- Excludes updates only for changes in README.md file
+- Directly commits and pushes the changes to README.md
+
+### Usage
+
+1. Copy the 'auto-readme.yml' file and add it to '.github/workflows/update-readme.yml' in your repository.
+2. In your repository's Settings > Secrets > Actions, add:
+   - Your OpenAPI key to OPENAI_API_KEY
+   - 'GH_TOKEN' with a GitHub Personal Access Token ('repo' scope for private repositories and 'public_repo' for public ones)
+3. Adjust your repository settings:
+   - Under your repository's Settings > Actions > General, select "Read and write permissions" inside "Workflow permissions"
+   - Enable "Allow GitHub Actions to create and approve pull requests"
+
+_(Note: This action uses a custom 'GH_TOKEN' for authentication instead of the default 'GITHUB_TOKEN'.)_
+
+### Troubleshooting 
+
+If you encounter any issues, verify that the 'OPENAI_API_KEY' and 'GH_TOKEN' secrets are correctly set up, 'GH_TOKEN' has the necessary permissions, and your repository settings configured correctly.
+
+### Customizations and Contributions 
+
+Contributions to improve this action are always welcome!
+The action is customizable - You can tailor the Python script in the "Update README" step as per your requirements.
+
+### Breaking Changes 
+
+This feature addition does not introduce any breaking changes.

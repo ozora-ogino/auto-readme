@@ -1,31 +1,28 @@
-# [Repository Name]
+# {{repository_name}}
 
 ## Description
-[A brief description of your project]
+{{description}}
 
 ## Dependencies
-- [Dependency 1]
-- [Dependency 2]
+{{dependencies}}
 
 ## Features
-- [Feature 1]
-- [Feature 2]
-- [Feature 3]
+{{features}}
 
 ## Installation
-[Instructions on how to install and set up your project]
+{{installation}}
 
 ## Usage
-[Examples and instructions on how to use your project]
+{{usage}}
 
 ## Recent Updates
-[This section will be automatically updated with recent changes]
+{{recent_updates}}
 
 ## Contributing
-[Guidelines for contributing to your project]
+{{contributing}}
 
 ## License
-[Your project's license information]
+{{license}}
 
 ## Contact
-[Your contact information or how to reach out for support]
+{{contact}}

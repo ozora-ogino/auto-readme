@@ -6,7 +6,7 @@
 #
 # Usage Instructions:
 # 1. Copy this entire file to .github/workflows/update-readme.yml in your repository.
-# 2. Create a .github/README_TEMPLATE.md file in your repository with your desired README structure.
+# 2. Create a .github/README_TEMPLATE.md file in your repository with the structured template.
 # 3. Set up the required secrets and variables in your repository:
 #    - Go to your repository's Settings > Secrets and variables > Actions
 #    - Add a new repository secret named OPENAI_API_KEY with your OpenAI API key
@@ -128,7 +128,7 @@ jobs:
             
             return any(re.search(pattern, file_patch) for pattern in endpoint_patterns)
 
-        def generate_readme(diff_content, template_content, current_readme, max_tokens=4000):
+        def generate_readme(diff_content, template_content, current_readme, repo_name, max_tokens=4000):
             """
             Generate new README content using the specified OpenAI model.
             """
@@ -137,8 +137,30 @@ jobs:
             logging.info(f"Using OpenAI model: {model}")
 
             messages = [
-                {"role": "system", "content": "You are a helpful assistant that generates concise and informative README content based on code changes, a given template, and the current README. Focus on critical changes such as updates to workflows, package.json, and application endpoints. If no significant changes are necessary, respond with 'NO_CHANGES_NEEDED'."},
-                {"role": "user", "content": f"Here is the README template:\n\n{template_content}\n\nHere is the current README content:\n\n{current_readme}\n\nBased on the following diff, please update the README content. Focus on key changes, especially those related to workflows, package.json, and application endpoints. Also consider any new features or breaking changes. Use the provided template structure and incorporate relevant information from the current README. If no significant changes are needed, respond with 'NO_CHANGES_NEEDED':\n\n{diff_content}"}
+                {"role": "system", "content": "You are a helpful assistant that generates README content in Markdown format based on code changes, a given template, and the current README. Focus on critical changes such as updates to workflows, package.json, and application endpoints. If no significant changes are necessary, respond with 'NO_CHANGES_NEEDED'."},
+                {"role": "user", "content": f"""Update the README content based on the following information:
+
+README Template:
+{template_content}
+
+Current README:
+{current_readme}
+
+Repository Name: {repo_name}
+
+Code Changes:
+{diff_content}
+
+Instructions:
+1. Use the provided template structure.
+2. Incorporate relevant information from the current README and the code changes.
+3. Focus on key changes, especially those related to workflows, package.json, and application endpoints.
+4. Consider any new features or breaking changes.
+5. Replace {{placeholder}} with actual content.
+6. Provide the complete README in Markdown format without any additional text or explanations.
+7. If no significant changes are needed, respond only with 'NO_CHANGES_NEEDED'.
+
+Generate the updated README content:"""}
             ]
 
             try:
@@ -147,7 +169,7 @@ jobs:
                     messages=messages,
                     max_tokens=max_tokens
                 )
-                return response.choices[0].message.content
+                return response.choices[0].message.content.strip()
             except Exception as e:
                 if "maximum context length" in str(e):
                     logging.warning("Exceeded maximum context length. Reducing content and retrying.")
@@ -198,7 +220,7 @@ jobs:
                 readme_updated = False
                 for i, diff_chunk in enumerate(diff_chunks):
                     logging.info(f"Processing chunk {i+1} of {len(diff_chunks)}")
-                    new_readme_content = generate_readme(diff_chunk, template_content, current_readme)
+                    new_readme_content = generate_readme(diff_chunk, template_content, current_readme, repo_name)
                     
                     if new_readme_content is None:
                         logging.warning(f"Failed to generate content for chunk {i+1}. Skipping.")

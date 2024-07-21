@@ -242,6 +242,8 @@ Important Files and Their Contents:
 
 Instructions:
 IMPORTANT: Please forcely add change when Template has changed.
+IMPORTANT: Please use exactly same format with Template and only change contents marked as {{}}.
+IMPORTANT: If you can write better README, you can write it from scratch by refering template.
 1. Please follow the exact same format with README Template.
 2. Incorporate relevant information from the current README, code changes, and important file contents.
 3. Use table, toggle, code block or etc for readability. 

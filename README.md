@@ -202,3 +202,36 @@ For more detailed information, please refer to the 'auto-readme.yml' file.
 ### Breaking Changes 
 
 This new feature does not introduce any breaking changes. This is a new feature addition that does not affect existing functionality.
+
+## Latest Updates
+
+# auto-readme
+
+## Latest Updates
+
+### New Feature: README Auto-Update GitHub Action
+
+This repository has introduced a GitHub Action named 'README Updater Action'. This action leverages OpenAI's GPT-4 to automatically generate concise and informative updates for the README.md based on the changes proposed in pull requests.
+
+Key features of the new action:
+- Automatically activated on every pull request that make changes to files, excluding the README.md itself.
+- Commits and pushes any updates made to README.md directly.
+
+#### Usage 
+
+To utilize this feature:
+
+1. Copy the 'auto-readme.yml' file within the '.github/workflows' directory of your repository.
+2. Set up OPENAI_API_KEY with your OpenAI API key and GH_TOKEN with a GitHub Personal Access token in your repository settings.
+   - Note: GH_TOKEN should have 'repo' scope for private repositories and 'public_repo' scope for public repositories.
+3. Configure your repository settings:
+   - Under "Workflow permissions", select "Read and write permissions".
+   - Check the box for "Allow GitHub Actions to create and approve pull requests".
+
+Please ensure that the above steps are followed correctly in the described sequence. If any issues arise, check to confirm that the OPENAI_API_KEY and GH_TOKEN secrets are correctly set, and the GH_TOKEN has the necessary permissions. Verify that your repository settings for Actions are properly configured.
+
+#### Customizations and Contributions 
+
+This GitHub action is customizable - you are free to alter the Python script in the "Update README" step to meet your specific needs. We invite contributions for improvements to this action. Please report issues or submit pull requests to the repository.
+
+Please note that this is a new feature addition and it will not affect existing functionality. No breaking changes have been introduced.

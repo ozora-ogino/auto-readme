@@ -27,7 +27,6 @@ Usage:
 import os
 import sys
 import logging
-import time
 import re
 
 from github import Github
@@ -125,7 +124,13 @@ def is_critical_change(file_name, file_patch):
 
     # Check for endpoint changes in code files
     endpoint_patterns = [
-        # ... (endpoint patterns remain unchanged)
+        r'@app\.(get|post|put|delete|patch)',  # Flask/FastAPI
+        r'router\.(get|post|put|delete|patch)',  # Express.js
+        r'def\s+\w+\s*\(',  # Python function definitions
+        r'function\s+\w+\s*\(',  # JavaScript function definitions
+        r'public\s+\w+\s+\w+\s*\(',  # Java method definitions
+        r'func\s+\w+\s*\(',  # Go function definitions
+        r'def\s+self\..*',  # Python class method definitions
     ]
 
     return any(re.search(pattern, file_patch, re.IGNORECASE) for pattern in endpoint_patterns)
@@ -202,7 +207,15 @@ def generate_readme(diff_content, template_content, current_readme, repo_name, i
     model = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
     logging.info(f"Using OpenAI model: {model}")
 
-    file_content_str = "\n\n".join([f"File: {path}\nContent:\n{content}" for path, content in file_contents.items()])
+    # Truncate file contents to reduce overall input size
+    truncated_file_contents = {path: content[:1000] + "..." if len(content) > 1000 else content 
+                               for path, content in file_contents.items()}
+    file_content_str = "\n\n".join([f"File: {path}\nContent:\n{content}" for path, content in truncated_file_contents.items()])
+
+    # Truncate diff_content if it's too long
+    max_diff_length = 4000  # Adjust this value as needed
+    if len(diff_content) > max_diff_length:
+        diff_content = diff_content[:max_diff_length] + "...\n(diff content truncated)"
 
     messages = [
         {
@@ -214,10 +227,10 @@ def generate_readme(diff_content, template_content, current_readme, repo_name, i
             "content": f"""Update the README content based on the following information:
 
 README Template:
-{template_content}
+{template_content[:1000]}...
 
 Current README:
-{current_readme}
+{current_readme[:1000]}...
 
 Repository Name: {repo_name}
 
@@ -248,13 +261,8 @@ Generate the updated README content:""",
         )
         return response.choices[0].message.content.strip()
     except Exception as e:
-        if "maximum context length" in str(e):
-            logging.warning(
-                "Exceeded maximum context length. Reducing content and retrying."
-            )
-            return None
-        else:
-            raise
+        logging.error(f"Error generating README content: {e}")
+        return None
 
 def update_readme(new_content, readme_path="README.md"):
     """
@@ -334,40 +342,20 @@ def main():
             ]
         )
 
-        # Split diff content into chunks if it's too large
-        diff_chunks = [
-            all_diff_content[i : i + 3000]
-            for i in range(0, len(all_diff_content), 3000)
-        ]
+        new_readme_content = generate_readme(
+            all_diff_content, template_content, current_readme, repo_name, important_files, file_contents
+        )
 
-        readme_updated = False
-        for i, diff_chunk in enumerate(diff_chunks):
-            logging.info(f"Processing chunk {i+1} of {len(diff_chunks)}")
-            new_readme_content = generate_readme(
-                diff_chunk, template_content, current_readme, repo_name, important_files, file_contents
-            )
+        if new_readme_content is None:
+            logging.warning("Failed to generate new README content. Skipping update.")
+            return
 
-            if new_readme_content is None:
-                logging.warning(
-                    f"Failed to generate content for chunk {i+1}. Skipping."
-                )
-                continue
+        if new_readme_content.strip() == "NO_CHANGES_NEEDED":
+            logging.info("LLM determined no significant changes are needed.")
+            return
 
-            if new_readme_content.strip() == "NO_CHANGES_NEEDED":
-                logging.info(
-                    "LLM determined no significant changes are needed for this chunk."
-                )
-                continue
-
-            update_readme(new_readme_content)
-            current_readme = new_readme_content  # Update current README for next iteration
-            readme_updated = True
-
-            if i < len(diff_chunks) - 1:
-                time.sleep(20)  # Add delay between API calls to avoid rate limiting
-
-        if not readme_updated:
-            logging.info("No changes were made to the README.")
+        update_readme(new_readme_content)
+        logging.info("README updated successfully.")
 
     except Exception as e:
         logging.error(f"Failed to update README: {e}")

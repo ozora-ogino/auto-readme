@@ -26,8 +26,9 @@ jobs:
 
     - name: Update README
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
       run: |
         import os
         import sys
@@ -38,7 +39,7 @@ jobs:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
         def get_pr_diff(repo_name, pr_number):
-            github_token = os.environ['GITHUB_TOKEN']
+            github_token = os.environ['GH_TOKEN']
             g = Github(github_token)
             repo = g.get_repo(repo_name)
             pr = repo.get_pull(pr_number)
@@ -56,16 +57,20 @@ jobs:
             return response.choices[0].message.content
 
         def update_readme(new_content, readme_path='README.md'):
-            with open(readme_path, 'r') as f:
-                old_content = f.read()
-            updated_content = f"{old_content}\n\n## Latest Updates\n\n{new_content}"
-            with open(readme_path, 'w') as f:
-                f.write(updated_content)
-            logging.info(f"README updated successfully at {readme_path}")
+            try:
+                with open(readme_path, 'r') as f:
+                    old_content = f.read()
+                updated_content = f"{old_content}\n\n## Latest Updates\n\n{new_content}"
+                with open(readme_path, 'w') as f:
+                    f.write(updated_content)
+                logging.info(f"README updated successfully at {readme_path}")
+            except IOError as e:
+                logging.error(f"Error updating README: {e}")
+                raise
 
         def main():
             repo_name = os.environ['GITHUB_REPOSITORY']
-            pr_number = int(os.environ['GITHUB_EVENT_PULL_REQUEST_NUMBER'])
+            pr_number = int(os.environ['PR_NUMBER'])
             
             try:
                 files = get_pr_diff(repo_name, pr_number)
@@ -81,6 +86,8 @@ jobs:
       shell: python
 
     - name: Commit and push if changed
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         git config --global user.name 'GitHub Action'
         git config --global user.email 'action@github.com'

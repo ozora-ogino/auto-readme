@@ -243,15 +243,13 @@ Important Files and Their Contents:
 Instructions:
 1. Please follow the exact same format with README Template.
 2. Incorporate relevant information from the current README, code changes, and important file contents.
-3. Use table, toggle, code block or etc for readability.
-4. Consider any new features or breaking changes.
-5. Replace {{placeholder}} with actual content. (If the code block, specified, please insert actual file content with omitted comments.)
-7. Provide the complete README in Markdown format without any additional text or explanations. And don't start from code block.
-8. If no significant changes are needed, respond only with 'NO_CHANGES_NEEDED'.
-9. Don't use something like "refer to the installation guide found in the installation.md file."
-10. Create inclusive BEST quality README you can make.
+3. Use table, toggle, code block or etc for readability. 
+4. Replace {{placeholder}} with actual content. (If the code block, specified, please insert actual file contnet. if it's too long use toggle.)
+5. Provide the complete README in Markdown format without any additional text or explanations. And don't start from code block.
+6. If no significant changes are needed, respond only with 'NO_CHANGES_NEEDED'.
+7. Don't use something like "refer to the installation guide found in the installation.md file."
 
-Generate the updated README content:""",
+Generate the best README content you can generate:""",
         },
     ]
 

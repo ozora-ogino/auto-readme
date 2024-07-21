@@ -3,26 +3,17 @@
 ## Description
 {{description}}
 
-## Dependencies
-{{dependencies}}
-
 ## Features
 {{features}}
 
-## Installation
-{{installation}}
-
 ## Usage
-{{usage}}
+1. Copy following under `.github/workflows/auto-readme.yml` in your repo.
 
-## Recent Updates
-{{recent_updates}}
+```.github/workflows/auto-readme.yml
+{{auto-readme.yml}}
+```
 
-## Contributing
-{{contributing}}
-
+2. Add `.github/README_TEMPLATE.md`. ([example](.github/README_TEMPLATE.md`))
+ß
 ## License
 {{license}}
-
-## Contact
-{{contact}}

@@ -38,3 +38,46 @@ For more details, refer to the auto-readme.yml file.
 ### Breaking Changes 
 
 None. This was a new feature addition; it won't affect the existing functionality.
+
+## Latest Updates
+
+# auto-readme
+
+## Latest Updates
+
+## New Feature: README Auto-updater Action
+
+We have added a new GitHub Action, 'README Updater Action', which automatically updates the README.md file based on changes proposed in Pull Requests.
+
+### Key Features
+
+- Uses OpenAI's GPT-4 to generate concise and informative updates.
+- Triggers on every Pull Request that changes files, excluding the README.md itself.
+- Automatically commits and pushes amendments to README.md.
+- Ability to be fine-tuned according to user's requirements.
+
+### Usage 
+
+1. Copy the auto-readme.yml file to .github/workflows/update-readme.yml in your repository.
+2. Go to your repository's Settings > Secrets > Actions and set up:
+   - OPENAI_API_KEY with your OpenAI API key
+   - GH_TOKEN with a GitHub Personal Access Token - ensure to grant 'repo' scope for private repositories, or 'public_repo' scope for public ones.
+3. Configure your repository settings:
+   - Under Settings > Actions > General > "Workflow permissions", choose "Read and write permissions"
+   - Enable "Allow GitHub Actions to create and approve pull requests"
+
+_Important_: This action uses a custom GH_TOKEN for authentication instead of the default GITHUB_TOKEN. 
+
+### Troubleshooting 
+
+For troubleshooting, please check that OPENAI_API_KEY and GH_TOKEN secrets are correctly set, the GH_TOKEN has the necessary permissions, and that your repository settings for Actions are correctly configured.
+
+### Customization and Contributions 
+
+You can customize this action as per your needs by modifying the Python script in the "Update README" step. We welcome contributions to improve this action - feel free to submit a pull request or raise an issue on the repository!
+
+Refer to the auto-readme.yml file for more details.
+
+### Breaking Changes 
+
+There are no breaking changes. This action was a new feature addition and does not affect existing functionality.

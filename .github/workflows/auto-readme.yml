@@ -1,3 +1,24 @@
+# README Updater Action
+#
+# This GitHub Action automatically updates the README.md file based on changes in Pull Requests.
+# It uses OpenAI's GPT-4 to generate concise and informative updates.
+#
+# Usage Instructions:
+# 1. Copy this entire file to .github/workflows/update-readme.yml in your repository.
+# 2. Set up the required secrets in your repository:
+#    - Go to your repository's Settings > Secrets and variables > Actions
+#    - Add a new repository secret named OPENAI_API_KEY with your OpenAI API key
+#    - Add a new repository secret named GH_TOKEN with a GitHub Personal Access Token
+#      (The token should have 'repo' scope for private repositories, or 'public_repo' for public repositories)
+# 3. Configure your repository settings:
+#    - Go to your repository's Settings > Actions > General
+#    - Under "Workflow permissions", select "Read and write permissions"
+#    - Check "Allow GitHub Actions to create and approve pull requests"
+# 4. Optionally, customize the on: section below to control when this action runs
+#
+# Note: This action uses a custom GH_TOKEN for authentication instead of the default GITHUB_TOKEN.
+#       Make sure to set up the GH_TOKEN secret as described above.
+
 name: Update README
 
 on:
@@ -9,12 +30,15 @@ on:
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         ref: ${{ github.event.pull_request.head.ref }}
-        repository: ${{ github.event.pull_request.head.repo.full_name }}
+        token: ${{ secrets.GH_TOKEN }}
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -41,8 +65,7 @@ jobs:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
         def get_pr_diff(repo_name, pr_number):
-            github_token = os.environ['GH_TOKEN']
-            g = Github(github_token)
+            g = Github(os.environ['GH_TOKEN'])
             repo = g.get_repo(repo_name)
             pr = repo.get_pull(pr_number)
             return pr.get_files()
@@ -91,12 +114,29 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
-        git config --global user.name 'GitHub Action'
-        git config --global user.email 'action@github.com'
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add README.md
         if git diff --staged --quiet; then
           echo "No changes to README.md"
         else
           git commit -m "Update README based on PR changes"
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+          git push
         fi
+
+# Troubleshooting:
+# If you encounter any issues, please check the following:
+# 1. Ensure the OPENAI_API_KEY and GH_TOKEN secrets are correctly set in your repository
+# 2. Verify that the GH_TOKEN has the necessary permissions (repo scope for private repos, public_repo for public repos)
+# 3. Verify that the repository settings for Actions are correctly configured as mentioned in the setup instructions
+# 4. Check the Action logs for any error messages or unexpected behavior
+#
+# For more detailed information or to report issues, please visit:
+# https://github.com/yourusername/your-repo-name/issues
+
+# Customization:
+# You can customize this action by modifying the Python script in the "Update README" step.
+# For example, you can change the OpenAI model, adjust the prompt, or modify how the README is updated.
+
+# Contributions:
+# Contributions to improve this action are welcome! Please submit a pull request or open an issue on the repository.

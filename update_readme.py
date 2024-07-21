@@ -1,12 +1,12 @@
 import os
 import sys
-from github import Github
-from openai import OpenAI
 import logging
 import time
 import re
 
-# Set up logging
+from github import Github
+from openai import OpenAI
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )

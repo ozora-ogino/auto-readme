@@ -1,55 +1,70 @@
 # ozora-ogino/auto-readme
 
 ## Description
-Auto-readme is a Python application designed to automatically generate README files for GitHub repositories. It detects updates or changes made in the repository, integrates important file information, and accordingly rebuilds the updated README.
-
-## Dependencies
-To operate this application, the following dependencies must be installed:
-- Python 3.7+
-- GitHub Python package
+Auto-readme is a Python application designed to automatically generate README files for GitHub repositories. The application fetches updates or changes made in the repository, retrieves content from important files, and seamlessly rebuilds the updated README. 
 
 ## Features
-- Generates updated README files automatically based on code changes.
-- Enhanced detection range for endpoint files in multiple languages including Go, Rust, Scala, Kotlin, and Swift.
-- Extracts all file paths by recursively fetching the repository tree.
-- Includes relevant information from the current README, code changes, and important files.
+- Automatic generation of updated README files triggered by changes in the repository code.
+- Enhanced detection range for endpoint changes in multiple languages, including Python, Java, JavaScript and Go.
+- Recursive fetching of the repository tree to extract all file paths.
+- Integration of relevant details from the current README, important file contents, and the detected code changes.
+- Truncation of extensive file contents and diff information to optimize the README update process and enhance performance.
+- Various error handling mechanisms, including content generation errors and exceeding maximum content length.
+
+## Usage
+To use Auto-readme, follow these steps:
+
+1. Copy following under `.github/workflows/auto-readme.yml` in your repo.
+
+```
+.github/workflows/auto-readme.yml
+# README Updater Action
+#
+# This GitHub Action automatically updates the README.md file based on changes in Pull Requests.
+# It uses OpenAI's language models to generate concise and informative updates,
+# focusing on critical changes such as workflows, package.json, and application endpoints.
+#
+# Usage Instructions:
+# 1. Copy this entire file to .github/workflows/update-readme.yml in your repository.
+# 2. Create a .github/README_TEMPLATE.md file in your repository with the structured template.
+# 3. Set up the required secrets and variables in your repository:
+#    - Go to your repository's Settings > Secrets and variables > Actions
+#    - Add a new repository secret named OPENAI_API_KEY with your OpenAI API key
+#    - Add a new repository secret named GH_TOKEN with a GitHub Personal Access Token
+#      (The token should have 'repo' scope for private repositories, or 'public_repo' for public repositories)
+# 4. Configure your repository settings:
+#    - Go to your repository's Settings >...
+```
+
+2. Add `.github/README_TEMPLATE.md`.
+
+## License
+MIT License
+
+Copyright (c) 2024 Ozora Ogino
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECT...
 
 ## Installation
 Clone the repository and install the necessary packages using pip:
+
 ```bash
 git clone https://github.com/ozora-ogino/auto-readme.git
 cd auto-readme
 pip install -r requirements.txt
 ```
-
-## Usage
-The following command initiates the application:
-```bash
-python update_readme.py
-```
-Upon execution, the script retrieves the repository tree, identifies any updates in the repository, and rebuilds the README as required.
-
-## Recent Updates
-The repository has undergone considerable changes to improve the overall performance of the automatic README generation. Key updates include:
-- Implementation of logic to extract important files from the repository tree.
-- Enhancement of the README generation instructions.
-- Improved readability and comprehensibility of the README document generation process.
-- Improved logging during the document generation process.
-- Updated application logic for maintaining the current README state for the next iteration.
-
-## Contributing
-To contribute, fork the repository, make changes on your branch and submit a Pull Request. Modifications should not affect existing workflows but enrich the existing application features.
-
-## License
-This project is licensed under the MIT License.
-
-## Important Files
-The following are key files in this project:
-- .github/README_TEMPLATE.md
-- .github/workflows/auto-readme.yml
-- LICENSE
-- README.md
-- update_readme.py
-
-## Contact
-For any inquiries or suggestions, kindly raise an issue on the project page of the repository.

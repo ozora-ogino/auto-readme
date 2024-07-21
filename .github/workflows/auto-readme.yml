@@ -30,6 +30,7 @@ on:
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'Auto-update README')"
     permissions:
       contents: write
       pull-requests: write
@@ -120,7 +121,7 @@ jobs:
         if git diff --staged --quiet; then
           echo "No changes to README.md"
         else
-          git commit -m "Update README based on PR changes"
+          git commit -m "Auto-update README [skip ci]"
           git push
         fi
 

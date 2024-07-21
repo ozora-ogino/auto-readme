@@ -25,10 +25,9 @@ name: Update README
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [closed]
     paths-ignore:
       - 'README.md'
-
 env:
   OPENAI_MODEL: gpt-4
   TARGET_BRANCH: main

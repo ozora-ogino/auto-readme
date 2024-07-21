@@ -161,3 +161,44 @@ You have the ability to customize this action by altering the Python script unde
 **Breaking Changes**
 
 There are no breaking changes. This is a new feature addition, and it will not affect the existing functionality.
+
+## Latest Updates
+
+# auto-readme
+
+## Latest Updates
+
+## New Feature: README Auto-updater Action
+
+We have added a new innovative feature to our toolset - 'README Updater Action'. This GitHub Action has been designed to automatically update the README.md file based on the changes proposed in Pull Requests.
+
+### Key Features
+
+- Utilizes OpenAI's GPT-4 technology to generate concise and informative updates.
+- This action runs on every Pull Request that proposes changes to any file, except for the README.md itself, to ensure the README is always up-to-date.
+- Any changes made to the README.md file are committed and pushed automatically.
+- The action can be easily tailored to meet your unique requirements.
+
+### Usage 
+
+To utilize this feature:
+
+1. Copy the 'auto-readme.yml' file and place it in the '.github/workflows/update-readme.yml' directory in your repository.
+2. Set up the OPENAI_API_KEY with your OpenAI API key and GH_TOKEN with a GitHub Personal Access token. The GH_TOKEN should have 'repo' scope for private repositories and 'public_repo' scope for public repositories within your repository's Settings > Secrets > Actions.
+3. Configure your repository settings so that under "Workflow permissions" you have "Read and write permissions" selected. Also, enable the setting "Allow GitHub Actions to create and approve pull requests".
+
+Please note that this action uses a custom GH_TOKEN for authentication instead of the default GITHUB_TOKEN. 
+
+### Troubleshooting 
+
+For troubleshooting purposes, please make sure that both the OPENAI_API_KEY and GH_TOKEN secrets are correctly set, the GH_TOKEN has the necessary permissions, and your repository settings for Actions are correctly established.
+
+### Customization and Contributions 
+
+The README Updater Action is designed to be flexible. By modifying the Python script in the "Update README" step, you can customize this action to meet your specific needs. Moreover, contributions are warmly welcomed to improve this GitHub action. Feel free to submit a pull request or raise an issue on the repository.
+
+For more detailed information, please refer to the 'auto-readme.yml' file.
+
+### Breaking Changes 
+
+This new feature does not introduce any breaking changes. This is a new feature addition that does not affect existing functionality.

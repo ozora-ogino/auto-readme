@@ -16,18 +16,6 @@ Updates have been made to the `update_readme.py` file, altering the guidelines f
 ## Usage
 1. Copy the following into `.github/workflows/auto-readme.yml` in your repo.
 
-```yaml
-# {{repository_name}}
-
-## Description
-{{description}}
-
-## Features
-{{features}}
-
-## Usage
-1. Copy following under `.github/workflows/auto-readme.yml` in your repo.
-
 ```.github/workflows/auto-readme.yml
 
 name: Update README

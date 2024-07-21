@@ -1,7 +1,9 @@
 # ozora-ogino/auto-readme
 
 ## Description
-Auto-readme is a Python application designed to automatically generate README files for GitHub repositories. The application fetches updates or changes made in the repository, retrieves content from important files, and seamlessly rebuilds the updated README. 
+Auto-readme is a Python application designed to automatically generate README files for GitHub repositories. The application fetches updates or changes made in the repository, retrieves content from important files, and seamlessly rebuilds the updated README.
+
+Updates have been made to the `update_readme.py` file, altering the guidelines for generating the best possible README content.
 
 ## Features
 - Automatic generation of updated README files triggered by changes in the repository code.
@@ -14,10 +16,10 @@ Auto-readme is a Python application designed to automatically generate README fi
 ## Usage
 To use Auto-readme, follow these steps:
 
-1. Copy following under `.github/workflows/auto-readme.yml` in your repo.
+1. Copy following into `.github/workflows/auto-readme.yml` in your repo.
+Please refer to this example for how to set up the `.github/workflows/auto-readme.yml` in your repo.
 
-```
-.github/workflows/auto-readme.yml
+```yaml
 # README Updater Action
 #
 # This GitHub Action automatically updates the README.md file based on changes in Pull Requests.
@@ -36,7 +38,7 @@ To use Auto-readme, follow these steps:
 #    - Go to your repository's Settings >...
 ```
 
-2. Add `.github/README_TEMPLATE.md`.
+2. Add `.github/README_TEMPLATE.md`. (Refer to the provided example)
 
 ## License
 MIT License
@@ -46,25 +48,4 @@ Copyright (c) 2024 Ozora Ogino
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECT...
-
-## Installation
-Clone the repository and install the necessary packages using pip:
-
-```bash
-git clone https://github.com/ozora-ogino/auto-readme.git
-cd auto-readme
-pip install -r requirements.txt
-```
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell...

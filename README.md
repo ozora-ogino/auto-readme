@@ -17,6 +17,19 @@ Updates have been made to the `update_readme.py` file, altering the guidelines f
 1. Copy the following into `.github/workflows/auto-readme.yml` in your repo.
 
 ```yaml
+# {{repository_name}}
+
+## Description
+{{description}}
+
+## Features
+{{features}}
+
+## Usage
+1. Copy following under `.github/workflows/auto-readme.yml` in your repo.
+
+```.github/workflows/auto-readme.yml
+
 name: Update README
 
 on:
@@ -26,7 +39,7 @@ on:
       - 'README.md'
 
 env:
-  OPENAI_MODEL: gpt-4o
+  OPENAI_MODEL: gpt-4
   TARGET_BRANCH: main
 
 jobs:
@@ -48,27 +61,56 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
-      
-    - name: Install Dependencies
-      run: pip install -r requirements.txt
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install PyGithub openai
+        git clone https://github.com/ozora-ogino/auto-readme /tmp/auto-readme
 
     - name: Update README
-      run: python update_readme.py
       env:
         GH_TOKEN: ${{ secrets.GH_TOKEN }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         OPENAI_MODEL: ${{ env.OPENAI_MODEL }}
-```
+      run: python3 /tmp/auto-readme/update_readme.py
 
-## License
-MIT License
+    - name: Check for README changes
+      id: check_changes
+      run: |
+        if git diff --quiet README.md; then
+          echo "No changes to README.md"
+          echo "readme_changed=false" >> $GITHUB_OUTPUT
+        else
+          echo "README.md has been modified"
+          echo "readme_changed=true" >> $GITHUB_OUTPUT
+        fi
 
-```
-MIT License
+    - name: Commit and push if changed
+      if: steps.check_changes.outputs.readme_changed == 'true'
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add README.md
+        branch_name="update-readme/${{ github.run_number }}"
+        git checkout -b $branch_name
+        git commit -m "Auto-update README [skip ci]"
+        git push --set-upstream origin $branch_name
 
-[Full license text here]
+    - name: Create Pull Request
+      if: steps.check_changes.outputs.readme_changed == 'true'
+      uses: repo-sync/pull-request@v2
+      with:
+        github_token: ${{ secrets.GH_TOKEN }}
+        source_branch: "update-readme/${{ github.run_number }}"
+        destination_branch: "${{ env.TARGET_BRANCH }}"
+        pr_title: "AutoReadme: Update based on PR #${{ github.event.pull_request.number }}"
+        pr_body: "This pull request automatically updates the README based on changes in PR #${{ github.event.pull_request.number }}."
 ```
 
 ## Contributing
@@ -77,7 +119,3 @@ MIT License
 3. Commit your changes.
 4. Push to the branch.
 5. Create a new Pull Request.
-
----
-
-By following these instructions, you ensure your repository has the most up-to-date changes reflected in the README automatically, keeping it accurate and useful for all users and contributors.

@@ -21,7 +21,7 @@
 # Note: This action uses a custom GH_TOKEN for authentication instead of the default GITHUB_TOKEN.
 #       Make sure to set up the GH_TOKEN secret as described above.
 
-ame: Update README
+name: Update README
 
 on:
   pull_request:
